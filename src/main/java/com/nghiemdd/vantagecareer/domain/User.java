@@ -28,7 +28,7 @@ public class User {
         this.id = id;
     }
 
-    public String getNname() {
+    public String getName() {
         return name;
     }
 
