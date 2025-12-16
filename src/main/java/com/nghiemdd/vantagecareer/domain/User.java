@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 @Entity
-// Tên bảng trong database (nếu bạn muốn khác tên class)
+// Tên bảng trong database
 @Table(name = "users")
 public class User {
 

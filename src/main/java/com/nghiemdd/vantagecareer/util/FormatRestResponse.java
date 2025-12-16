@@ -21,18 +21,18 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
     @Autowired
     private ObjectMapper objectMapper; // Dùng để convert thủ công
 
-	@Override
-	public boolean supports(MethodParameter returnType, Class converterType) {
-		return true;
-	}
+    @Override
+    public boolean supports(MethodParameter returnType, Class converterType) {
+        return true;
+    }
 
     @Override
     public Object beforeBodyWrite(Object body,
-                                MethodParameter returnType,
-                                MediaType selectedContentType,
-                                Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                ServerHttpRequest request,
-                                ServerHttpResponse response) {
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
 
         // 1. Bỏ qua Swagger ... (Giữ nguyên)
         String path = request.getURI().getPath();
@@ -47,7 +47,7 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
         // 3. Tạo object RestResponse chuẩn
         RestResponse<Object> res = new RestResponse<>();
-        
+
         // --- ĐOẠN SỬA ĐỔI: Lấy status code động ---
         if (response instanceof ServletServerHttpResponse servletResponse) {
             // Lấy status code thật mà Controller set (ví dụ 201, 200)
@@ -67,7 +67,7 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
                 throw new RuntimeException("Không thể convert response sang JSON", e);
             }
         }
-        
+
         return res;
     }
 }
