@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,8 +18,11 @@ import com.nghiemdd.vantagecareer.domain.RestResponse;
 @RestControllerAdvice
 public class GlobalException {
 
-    @ExceptionHandler(value = IdInvalidException.class)
-    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(IdInvalidException ex) {
+    @ExceptionHandler(value = {
+            UsernameNotFoundException.class,
+            BadCredentialsException.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex) {
         RestResponse<Object> res = new RestResponse<>();
 
         // 1. Set statusCode: 400
@@ -28,7 +33,7 @@ public class GlobalException {
 
         // 3. Set message
         // res.setMessage(ex.getClass().getSimpleName());
-        res.setMessage("Call api failed");
+        res.setMessage("Exception occurred...");
 
         // 4. Set data: null
         res.setData(null);
