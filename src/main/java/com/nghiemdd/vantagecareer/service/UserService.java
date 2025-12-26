@@ -5,10 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.nghiemdd.vantagecareer.domain.Company;
 import com.nghiemdd.vantagecareer.domain.User;
+import com.nghiemdd.vantagecareer.domain.dto.Meta;
+import com.nghiemdd.vantagecareer.domain.dto.ResultPaginationDTO;
 import com.nghiemdd.vantagecareer.repository.UserRepository;
 
 @Service
@@ -40,8 +45,22 @@ public class UserService {
         }
     }
 
-    public List<User> fetchAllUser() {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO fetchAllUser(Pageable pageable) {
+
+        Page<User> page = this.userRepository.findAll(pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        Meta mt = new Meta();
+
+        mt.setPage(page.getNumber() + 1);
+        mt.setPageSize(page.getSize());
+
+        mt.setTotal(page.getTotalElements());
+        mt.setPages(page.getTotalPages());
+
+        rs.setMeta(mt);
+        rs.setResult(page.getContent());
+
+        return rs;
     }
 
     public User handleUpdateUser(User newUserData) {

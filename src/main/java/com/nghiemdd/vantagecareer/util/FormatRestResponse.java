@@ -48,16 +48,37 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         // 3. Tạo object RestResponse chuẩn
         RestResponse<Object> res = new RestResponse<>();
 
-        // --- ĐOẠN SỬA ĐỔI: Lấy status code động ---
+        // ... đoạn lấy status code
+        int status = 200; // Mặc định
         if (response instanceof ServletServerHttpResponse servletResponse) {
-            // Lấy status code thật mà Controller set (ví dụ 201, 200)
-            res.setStatusCode(servletResponse.getServletResponse().getStatus());
-        } else {
-            res.setStatusCode(200); // Default
+            status = servletResponse.getServletResponse().getStatus();
         }
+        res.setStatusCode(status);
 
-        res.setMessage("CALL API SUCCESS");
+        // --- ĐOẠN SỬA ---
+        // Kiểm tra status để set message phù hợp
+        if (status >= 400) {
+            // Trường hợp lỗi (404, 500...) lọt vào đây
+            res.setMessage("CALL API FAILED");
+            // Hoặc lấy thông tin chi tiết từ body nếu body là Map lỗi của Spring
+        } else {
+            res.setMessage("CALL API SUCCESS");
+        }
+        // ----------------
+
         res.setData(body);
+        // ...
+
+        // // --- ĐOẠN SỬA ĐỔI: Lấy status code động ---
+        // if (response instanceof ServletServerHttpResponse servletResponse) {
+        // // Lấy status code thật mà Controller set (ví dụ 201, 200)
+        // res.setStatusCode(servletResponse.getServletResponse().getStatus());
+        // } else {
+        // res.setStatusCode(200); // Default
+        // }
+
+        // res.setMessage("CALL API SUCCESS");
+        // res.setData(body);
 
         // 4. Xử lý String (Giữ nguyên logic của bạn)
         if (body instanceof String) {
