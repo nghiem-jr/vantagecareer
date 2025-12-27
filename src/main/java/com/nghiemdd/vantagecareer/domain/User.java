@@ -1,14 +1,24 @@
 package com.nghiemdd.vantagecareer.domain;
 
+import java.time.Instant;
+
+import com.nghiemdd.vantagecareer.util.constant.GenderEnum;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 @Entity
 // Tên bảng trong database
 @Table(name = "users")
+@Getter
+@Setter
 public class User {
 
     // 1. Khóa Chính (Primary Key)
@@ -20,36 +30,15 @@ public class User {
     private String email;
     private String password;
 
-    public Long getId() {
-        return id;
-    }
+    private int age;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    @Enumerated(EnumType.STRING)
+    private GenderEnum gender;
+    private String address;
+    private String refreshToken;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String createdBy;
+    private String updatedBy;
 
 }
