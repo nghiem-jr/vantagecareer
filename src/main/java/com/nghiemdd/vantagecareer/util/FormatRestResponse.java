@@ -6,6 +6,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nghiemdd.vantagecareer.domain.RestResponse;
+import com.nghiemdd.vantagecareer.util.annotation.ApiMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -62,7 +63,12 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
             res.setMessage("CALL API FAILED");
             // Hoặc lấy thông tin chi tiết từ body nếu body là Map lỗi của Spring
         } else {
-            res.setMessage("CALL API SUCCESS");
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+            if (apiMessage != null) {
+                res.setMessage(apiMessage.value());
+            } else {
+                res.setMessage("CALL API SUCCESS");
+            }
         }
         // ----------------
 

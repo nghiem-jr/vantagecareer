@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nghiemdd.vantagecareer.domain.User;
 import com.nghiemdd.vantagecareer.domain.dto.ResultPaginationDTO;
 import com.nghiemdd.vantagecareer.service.UserService;
+import com.nghiemdd.vantagecareer.util.annotation.ApiMessage;
 import com.nghiemdd.vantagecareer.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -22,10 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
 
@@ -56,6 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @ApiMessage("fetch all users")
     public ResponseEntity<ResultPaginationDTO> getUsers(@Filter Specification<User> spec, Pageable pageable) {
         ResultPaginationDTO users = this.userService.fetchAllUser(spec, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(users);

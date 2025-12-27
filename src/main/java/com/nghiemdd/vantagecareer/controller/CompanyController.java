@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nghiemdd.vantagecareer.domain.Company;
 import com.nghiemdd.vantagecareer.domain.dto.ResultPaginationDTO;
 import com.nghiemdd.vantagecareer.service.CompanyService;
+import com.nghiemdd.vantagecareer.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
+@RequestMapping("/api/v1")
 public class CompanyController {
     CompanyService companyService;
 
@@ -41,6 +44,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
+    @ApiMessage("fetch all companies")
     public ResponseEntity<ResultPaginationDTO> getCompanies(@Filter Specification<Company> spec, Pageable pageable) {
 
         ResultPaginationDTO companies = this.companyService.fetchAllCompanies(spec, pageable);
