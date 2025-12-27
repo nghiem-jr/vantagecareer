@@ -4,8 +4,10 @@ import java.util.List;
 
 import javax.naming.spi.DirStateFactory.Result;
 
+import org.springframework.boot.autoconfigure.rsocket.RSocketProperties.Server.Spec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.nghiemdd.vantagecareer.domain.Company;
@@ -31,13 +33,13 @@ public class CompanyService {
     // return page.getContent();
     // }
 
-    public ResultPaginationDTO fetchAllCompanies(Pageable pageable) {
-        Page<Company> page = this.companyRepository.findAll(pageable);
+    public ResultPaginationDTO fetchAllCompanies(Specification<Company> spec, Pageable pageable) {
+        Page<Company> page = this.companyRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta mt = new Meta();
 
-        mt.setPage(page.getNumber() + 1);
-        mt.setPageSize(page.getSize());
+        mt.setPage(pageable.getPageNumber() + 1);
+        mt.setPageSize(pageable.getPageSize());
 
         mt.setTotal(page.getTotalElements());
         mt.setPages(page.getTotalPages());
