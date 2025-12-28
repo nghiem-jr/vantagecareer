@@ -3,6 +3,7 @@ package com.nghiemdd.vantagecareer.service;
 import java.lang.foreign.Linker.Option;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 import com.nghiemdd.vantagecareer.domain.Company;
 import com.nghiemdd.vantagecareer.domain.User;
 import com.nghiemdd.vantagecareer.domain.dto.Meta;
+import com.nghiemdd.vantagecareer.domain.dto.ResCreateUserDTO;
+import com.nghiemdd.vantagecareer.domain.dto.ResUpdateUserDTO;
+import com.nghiemdd.vantagecareer.domain.dto.ResUserDTO;
 import com.nghiemdd.vantagecareer.domain.dto.ResultPaginationDTO;
 import com.nghiemdd.vantagecareer.repository.UserRepository;
 
@@ -59,24 +63,91 @@ public class UserService {
         mt.setPages(page.getTotalPages());
 
         rs.setMeta(mt);
-        rs.setResult(page.getContent());
+        // rs.setResult(page.getContent());
 
+        // remove sensitive data
+        List<ResUserDTO> listUser = page.getContent()
+                .stream().map(item -> new ResUserDTO(
+                        item.getId(),
+                        item.getEmail(),
+                        item.getName(),
+                        item.getGender(),
+                        item.getAddress(),
+                        item.getAge(),
+                        item.getUpdatedAt(),
+                        item.getCreatedAt()))
+                .collect(Collectors.toList());
+
+        rs.setResult(listUser);
         return rs;
     }
 
-    public User handleUpdateUser(User newUserData) {
-        User currenUser = this.fetchUserById(newUserData.getId());
-        if (currenUser != null) {
-            currenUser.setName(newUserData.getName());
-            currenUser.setEmail(newUserData.getEmail());
-            currenUser.setPassword(newUserData.getPassword());
-            return this.userRepository.save(currenUser);
-        } else {
-            return null;
+    // public User handleUpdateUser(User newUserData) {
+    // User currenUser = this.fetchUserById(newUserData.getId());
+    // if (currenUser != null) {
+    // currenUser.setName(newUserData.getName());
+    // currenUser.setEmail(newUserData.getEmail());
+    // currenUser.setPassword(newUserData.getPassword());
+    // return this.userRepository.save(currenUser);
+    // } else {
+    // return null;
+    // }
+    // }
+    public User handleUpdateUser(User reqUser) {
+        User currentUser = this.fetchUserById(reqUser.getId());
+        if (currentUser != null) {
+            currentUser.setAddress(reqUser.getAddress());
+            currentUser.setGender(reqUser.getGender());
+            currentUser.setAge(reqUser.getAge());
+            currentUser.setName(reqUser.getName());
+
+            // update
+            currentUser = this.userRepository.save(currentUser);
         }
+        return currentUser;
     }
 
     public User handleGetUserByEmail(String email) {
         return this.userRepository.findByEmail(email);
+    }
+
+    public boolean isEmailExists(String email) {
+        return this.userRepository.existsByEmail(email);
+    }
+
+    public ResCreateUserDTO convertToResCreateUserDTO(User user) {
+        ResCreateUserDTO res = new ResCreateUserDTO();
+        res.setId(user.getId());
+        res.setEmail(user.getEmail());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setCreatedAt(user.getCreatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+        return res;
+    }
+
+    public ResUserDTO convertToResUserDTO(User user) {
+        ResUserDTO res = new ResUserDTO();
+        res.setId(user.getId());
+        res.setEmail(user.getEmail());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setUpdatedAt(user.getUpdatedAt());
+        res.setCreatedAt(user.getCreatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+        return res;
+    }
+
+    public ResUpdateUserDTO convertToResUpdateUserDTO(User user) {
+        ResUpdateUserDTO res = new ResUpdateUserDTO();
+        res.setId(user.getId());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setUpdatedAt(user.getUpdatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+        return res;
     }
 }

@@ -12,15 +12,19 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.nghiemdd.vantagecareer.domain.RestResponse;
+
+import io.micrometer.core.instrument.Meter.Id;
 
 @RestControllerAdvice
 public class GlobalException {
 
     @ExceptionHandler(value = {
             UsernameNotFoundException.class,
-            BadCredentialsException.class
+            BadCredentialsException.class,
+            IdInvalidException.class
     })
     public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex) {
         RestResponse<Object> res = new RestResponse<>();
@@ -64,6 +68,17 @@ public class GlobalException {
 
         res.setData(null);
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @ExceptionHandler(value = {
+            NoResourceFoundException.class,
+    })
+    public ResponseEntity<RestResponse<Object>> handleNotFoundException(Exception ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.NOT_FOUND.value());
+        res.setError(ex.getMessage());
+        res.setMessage("404 Not Found. URL may not exist...");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 }

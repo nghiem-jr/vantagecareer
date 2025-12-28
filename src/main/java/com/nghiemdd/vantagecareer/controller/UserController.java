@@ -3,11 +3,17 @@ package com.nghiemdd.vantagecareer.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nghiemdd.vantagecareer.domain.User;
+import com.nghiemdd.vantagecareer.domain.dto.ResCreateUserDTO;
+import com.nghiemdd.vantagecareer.domain.dto.ResUpdateUserDTO;
+import com.nghiemdd.vantagecareer.domain.dto.ResUserDTO;
 import com.nghiemdd.vantagecareer.domain.dto.ResultPaginationDTO;
 import com.nghiemdd.vantagecareer.service.UserService;
 import com.nghiemdd.vantagecareer.util.annotation.ApiMessage;
 import com.nghiemdd.vantagecareer.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
+
+import io.micrometer.core.instrument.Meter.Id;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,25 +43,37 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
-
+    @ApiMessage("create new user")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User postManUser)
+            throws IdInvalidException {
+        boolean isEmialExist = this.userService.isEmailExists(postManUser.getEmail());
+        if (isEmialExist) {
+            throw new IdInvalidException(
+                    "Email " + postManUser.getEmail() + " da ton tai, vui long su dung email khac");
+        }
         User newUser = this.userService.handleCreateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(newUser));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deletetUser(@PathVariable("id") long id) throws IdInvalidException {
-        if (id > 1500) {
-            throw new IdInvalidException("khong ton tai id lon hon 1500");
+    @ApiMessage("delete a user by id")
+    public ResponseEntity<Void> deletetUser(@PathVariable("id") long id) throws IdInvalidException {
+        User currentUser = this.userService.fetchUserById(id);
+        if (currentUser == null) {
+            throw new IdInvalidException("user với id = " + id + " không tồn tại");
         }
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body("nghiemdd");
+        return ResponseEntity.ok(null);
     }
 
+    // cái này cần dùng resuserDTO
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") Long id) throws IdInvalidException {
         User fetchUser = userService.fetchUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
+        if (fetchUser == null) {
+            throw new IdInvalidException("user với id = " + id + " không tồn tại");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResUserDTO(fetchUser));
     }
 
     @GetMapping("/users")
@@ -66,9 +84,13 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User postManUser) {
-        User updatedUser = this.userService.handleUpdateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    @ApiMessage("update a user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User postManUser) throws IdInvalidException {
+        User existingUser = this.userService.fetchUserById(postManUser.getId());
+        if (existingUser == null) {
+            throw new IdInvalidException("user với id = " + postManUser.getId() + " không tồn tại");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUpdateUserDTO(existingUser));
     }
 
 }
