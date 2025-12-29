@@ -2,8 +2,10 @@ package com.nghiemdd.vantagecareer.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nghiemdd.vantagecareer.domain.User;
 import com.nghiemdd.vantagecareer.domain.dto.LoginDTO;
 import com.nghiemdd.vantagecareer.domain.dto.ResLoginDTO;
+import com.nghiemdd.vantagecareer.service.UserService;
 import com.nghiemdd.vantagecareer.util.SecurityUtil;
 
 import jakarta.validation.Valid;
@@ -23,10 +25,13 @@ public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private SecurityUtil securityUtil;
+    private UserService userService;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil,
+            UserService userService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
@@ -42,8 +47,14 @@ public class AuthController {
         // nạp thông tin (nếu xử lý thành công) vào SecurityContextHolder
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        ResLoginDTO access_token_dto = new ResLoginDTO(access_token);
+        ResLoginDTO access_token_dto = new ResLoginDTO();
+        User currentUser = userService.handleGetUserByEmail(loginDTO.getUserame());
+        if (currentUser != null) {
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUser.getId(), currentUser.getEmail(),
+                    currentUser.getName());
+            access_token_dto.setUser(userLogin);
+        }
+        access_token_dto.setAccess_token(access_token);
         return ResponseEntity.ok().body(access_token_dto);
     }
-
 }
